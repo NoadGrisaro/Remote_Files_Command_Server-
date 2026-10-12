@@ -27,13 +27,13 @@ int main(void) {
 
     printf("Enter a valid command: ");
     if (!fgets(client_input, sizeof(client_input), stdin)) {
-        printf("Error reading input\n");
+        perror("Error reading input\n");
         return -1;
     }
 
     ParseStatus parse_res = parse_command(client_input, &parsed_command);
     if (parse_res != PARSE_SUCCESS) {
-        printf("Command parsing failed with error code: %d\n", parse_res);
+        perror("Command parsing failed with error code: %d\n", parse_res);
         return -1;
     }
 
@@ -46,7 +46,7 @@ int main(void) {
     }
 
     if (inet_pton(AF_INET, SERVER_IP, &server_addr.sin_addr) <= 0) {
-        printf("Invalid address / Address not supported\n");
+        perror("Invalid address / Address not supported\n");
         close(client_fd);
         return -1;
     }
@@ -58,14 +58,14 @@ int main(void) {
     }
 
     if (TransferReqToServer(client_fd, &protocol_request) < 0) {
-        printf("Failed to send request\n");
+        perror("Failed to send request\n");
         close(client_fd);
         return -1;
     }
 
     ssize_t bytes_received = recv(client_fd, &protocol_response, sizeof(protocol_response), 0);
     if (bytes_received <= 0) {
-        printf("Failed to receive response from server\n");
+        perror("Failed to receive response from server\n");
         close(client_fd);
         return -1;
     } else {
