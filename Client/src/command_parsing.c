@@ -1,37 +1,7 @@
+#include "command_parsing.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
-
-#define MAX_FILENAME_LEN 128
-#define MAX_TEXT_LEN     1024
-
-typedef enum {
-    ACTION_READ,
-    ACTION_CREATE,
-    ACTION_DELETE,
-    ACTION_WRITE,
-    ACTION_APPEND,
-    ACTION_UNKNOWN
-} ActionType;
-
-typedef struct {
-    ActionType action;
-    char file_name[MAX_FILENAME_LEN];
-    char text[MAX_TEXT_LEN];
-} CommandRequest;
-
-typedef enum {
-    PARSE_SUCCESS = 0,
-    ERR_EMPTY_INPUT,
-    ERR_UNKNOWN_ACTION,
-    ERR_MISSING_FILENAME,
-    ERR_FILENAME_TOO_LONG,
-    ERR_TOO_MANY_ARGUMENTS,
-    ERR_MISSING_TEXT,
-    ERR_TEXT_TOO_LONG
-} ParseStatus;
-
 
 static const char *skipWhitespace(const char *str) {
     while (*str == ' ' || *str == '\t') {
@@ -49,26 +19,24 @@ static ActionType ParseAction(const char *word, size_t len) {
     return ACTION_UNKNOWN;
 }
 
-
 ParseStatus parse_command(const char *raw_line, CommandRequest *parsed_command) {
     if (!raw_line || !parsed_command) {
         return ERR_EMPTY_INPUT;
     }
 
     memset(parsed_command, 0, sizeof(CommandRequest));
-
     const char *p = skipWhitespace(raw_line);
     if (*p == '\0' || *p == '\r' || *p == '\n') {
         return ERR_EMPTY_INPUT;
     }
-  
+
     const char *action_start = p;
     while (*p != '\0' && !isspace((unsigned char)*p)) {
         p++;
     }
     size_t action_len = p - action_start;
 
-    parsed_command->action = CheckIfActionValid(action_start, action_len);
+    parsed_command->action = ParseAction(action_start, action_len);
     if (parsed_command->action == ACTION_UNKNOWN) {
         return ERR_UNKNOWN_ACTION;
     }
@@ -91,11 +59,9 @@ ParseStatus parse_command(const char *raw_line, CommandRequest *parsed_command) 
     memcpy(parsed_command->file_name, file_start, file_len);
     parsed_command->file_name[file_len] = '\0';
 
-    int is_group_1 = (parsed_command->action == ACTION_READ ||
-                       parsed_command->action == ACTION_CREATE ||
-                       parsed_command->action == ACTION_DELETE);
+    int is_no_text_field_group_1 = (parsed_command->action == ACTION_READ || parsed_command->action == ACTION_CREATE || parsed_command->action == ACTION_DELETE);
 
-    if (is_group_1) {
+    if (is_no_text_field_group_1) {
         p = skipWhitespace(p);
         if (*p != '\0' && *p != '\r' && *p != '\n') {
             return ERR_TOO_MANY_ARGUMENTS;
