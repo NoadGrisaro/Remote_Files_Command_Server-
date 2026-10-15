@@ -1,0 +1,28 @@
+Remote File Command Server in C.
+
+
+* ** the client can create/ read / write / append / delete a file to the server. he can only work in a spasific folder in the file system, every atteamp to get out of this folder will be blocked.
+
+* ** the allowed command is action filename text(only for write action)
+
+* ** inside the permited folder there will be 6 sub folders that the client can work on, therefore the client need to enter the next path: userX_Folder/file_name
+
+
+* ** Multi threaded Archutecture (Thread Pool). managing new clients that by adding them to the circular queue
+
+* ** Writer control. a file can have multiple readrs, it can have a reader and a writer. but it cant have a writer and a writer. every time there is a new writer he will be added to a dynamic array that contains all the active writers in the system. every file can have only till one writer
+
+binary application protocol. every packet that go will have a header the header will conatin a magic num is the client/server will know the recieved from legit source. every packet to translate from host to network and network to host
+
+* ** clean socket life style. wrapper functions writeAll and readAll will transmit all the bytes in the buffer until there is not more.
+
+to run the program you need to run the two next compile commands
+
+gcc -Wall -Wextra     -I Client/include     -I Shared_modules/include     Client/src/cli.c     Client/src/command_parsing.c     Shared_modules/src/net_utilities.c     Shared_modules/src/protocol.c     -o bin/client
+
+
+gcc -Wall -Wextra -pthread     -I Server/include     -I Shared_modules/include     Server/src/*.c     Shared_modules/src/net_utilities.c     Shared_modules/src/protocol.c     -o bin/server
+
+and the run the two commands
+./bin/server
+./bin/client
