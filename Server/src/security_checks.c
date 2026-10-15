@@ -53,7 +53,7 @@ int validateSandboxPath(const char *user_path, char *resolved_out) {
         return 0; 
     }
 
-    if (strncmp(BASE_DIR, resolved_combined_dir, base_len) != 0 || resolved_combined_dir[base_len] != '/') {
+    if (strncmp(BASE_DIR, resolved_combined_dir, base_len) != 0) {
         return 0;
     }
 
