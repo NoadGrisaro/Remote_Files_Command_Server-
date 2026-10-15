@@ -59,7 +59,8 @@ ParseStatus parse_command(const char *raw_line, CommandRequest *parsed_command) 
     memcpy(parsed_command->file_name, file_start, file_len);
     parsed_command->file_name[file_len] = '\0';
 
-    int is_no_text_field_group_1 = (parsed_command->action == ACTION_READ || parsed_command->action == ACTION_CREATE || parsed_command->action == ACTION_DELETE);
+    int is_no_text_field_group_1 = (parsed_command->action == ACTION_READ || 
+        parsed_command->action == ACTION_CREATE || parsed_command->action == ACTION_DELETE);
 
     if (is_no_text_field_group_1) {
         p = skipWhitespace(p);

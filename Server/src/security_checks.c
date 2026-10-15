@@ -32,9 +32,7 @@ int validateSandboxPath(const char *user_path, char *resolved_out) {
 
     char user_dir_part[PATH_MAX];
     size_t user_dir_len = (size_t)(last_slash - user_path);
-    if (user_dir_len >= PATH_MAX) {
-        return 0;
-    }
+    
     strncpy(user_dir_part, user_path, user_dir_len);
     user_dir_part[user_dir_len] = '\0';
 
