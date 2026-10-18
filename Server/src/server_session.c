@@ -39,7 +39,7 @@ static uint8_t doFileWrite(const char *path, const char *payload, uint32_t len) 
 static uint8_t doFileAppend(const char *path, const char *payload, uint32_t len) {
     int fd = open(path, O_WRONLY | O_APPEND);
     if (fd < 0) {
-        return (errno == ENOENT) ? ERR_FILE_NOT_FOUND : ERR_IO_FAILURE;
+        return (errno == ENOENT) ? ERR_FILE_NOT_FOUND : ERR_IO_FAILURE;//קובץ לא קיים
     }
 
     if (len > 0 && writeAll(fd, payload, len) <= 0) {
@@ -53,7 +53,7 @@ static uint8_t doFileAppend(const char *path, const char *payload, uint32_t len)
 
 static uint8_t doFileDelete(const char *path) {
     if (unlink(path) < 0) {
-        return (errno == ENOENT) ? ERR_FILE_NOT_FOUND : ERR_IO_FAILURE;
+        return (errno == ENOENT) ? ERR_FILE_NOT_FOUND : ERR_IO_FAILURE;//קובץ לא קיים
     }
     return STATUS_OK;
 }
@@ -61,7 +61,7 @@ static uint8_t doFileDelete(const char *path) {
 static uint8_t doFileRead(const char *path, ProtocolMessage *res) {
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
-        return (errno == ENOENT) ? ERR_FILE_NOT_FOUND : ERR_IO_FAILURE;
+        return (errno == ENOENT) ? ERR_FILE_NOT_FOUND : ERR_IO_FAILURE;//קובץ לא קיים
     }
 
     ssize_t bytes_read = read(fd, res->payload, MAX_TEXT_LEN - 1);

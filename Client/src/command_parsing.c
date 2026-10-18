@@ -15,7 +15,7 @@ static const char *extractToken(const char *cursor, const char **token_start, si
     *unclosed_quote = false;
     cursor = skipWhitespace(cursor);
 
-    if (*cursor == '\0' || *cursor == '\r' || *cursor == '\n') {
+    if (*cursor == '\0' || *cursor == '\r' || *cursor == '\n') {//אם אין טוקן והוא לא הכניס כלום
         *token_start = NULL;
         *token_len = 0;
         return cursor;
@@ -29,13 +29,13 @@ static const char *extractToken(const char *cursor, const char **token_start, si
             cursor++;
         }
 
-        if (*cursor != '"') {
+        if (*cursor != '"') {// אם הגענו לסוף המחרוזת
             *unclosed_quote = true; 
             return cursor;
         }
 
         *token_len = (size_t)(cursor - *token_start);
-        cursor++; /* דילוג על המירכאות הסוגרות */
+        cursor++; // דילוג על המירכאות הסוגרות 
         return cursor;
     }
 
@@ -57,19 +57,18 @@ static ActionType parseAction(const char *word, size_t len) {
     return ACTION_UNKNOWN;
 }
 
-static bool actionRequiresPayload(ActionType action) {
+static bool actionRequiresText(ActionType action) {
     return (action == ACTION_WRITE || action == ACTION_APPEND);
 }
 
-static ParseStatus extractPayload(const char *cursor, char *dest, size_t max_len) {
+static ParseStatus extractText(const char *cursor, char *dest, size_t max_len) {
     cursor = skipWhitespace(cursor);
     if (*cursor == '\0' || *cursor == '\r' || *cursor == '\n') {
         return ERR_MISSING_TEXT;
     }
-
     size_t text_len = strlen(cursor);
 
-    while (text_len > 0 && (cursor[text_len - 1] == '\r' || cursor[text_len - 1] == '\n')) {
+    while (text_len > 0 && (cursor[text_len - 1] == '\r' || cursor[text_len - 1] == '\n')) {//הורדת תווי בקרה מהסוף
         text_len--;
     }
 
@@ -120,8 +119,8 @@ ParseStatus parseCommand(const char *raw_line, CommandRequest *parsed_command) {
     memcpy(parsed_command->file_name, token_start, token_len);
     parsed_command->file_name[token_len] = '\0';
 
-    if (actionRequiresPayload(parsed_command->action)) {
-        return extractPayload(cursor, parsed_command->text, MAX_TEXT_LEN);
+    if (actionRequiresText(parsed_command->action)) {
+        return extractText(cursor, parsed_command->text, MAX_TEXT_LEN);
     }
 
     cursor = skipWhitespace(cursor);

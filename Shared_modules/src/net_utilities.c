@@ -2,9 +2,9 @@
 #include <unistd.h>
 #include <errno.h>
 
-int readAll(int fd, void *buf, size_t count) {
+int readAll(int fd, char *buf, size_t count) {
     size_t total_read = 0;
-    char *ptr = (char *)buf;
+    char *ptr = (char*)buf;
 
     while (total_read < count) {
         ssize_t bytes = read(fd, ptr + total_read, count - total_read);
@@ -22,7 +22,7 @@ int readAll(int fd, void *buf, size_t count) {
     return 1;
 }
 
-int writeAll(int fd, const void *buf, size_t count) {
+int writeAll(int fd, const char *buf, size_t count) {
     size_t total_written = 0;
     const char *ptr = (const char *)buf;
 

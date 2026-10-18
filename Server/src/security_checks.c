@@ -18,7 +18,7 @@ static int validateInputString(const char *user_path, const char *resolved_out) 
     }
 
     for (size_t i = 0; i < user_len; i++) {
-        if (!isprint((unsigned char)user_path[i])) {
+        if (!isprint((unsigned char)user_path[i])) {//מוודא שכל התווים קריאים ואין תווי בקרה
             return 0;
         }
     }
@@ -37,7 +37,8 @@ static int extractPathParts(const char *user_path, char *user_dir_part, const ch
     user_dir_part[user_dir_len] = '\0';
 
     *file_part = last_slash + 1;
-    if ((*file_part)[0] == '\0' || strcmp(*file_part, ".") == 0 || strcmp(*file_part, "..") == 0) {
+    if ((*file_part)[0] == '\0' || strcmp(*file_part, ".") == 0 ||
+    strcmp(*file_part, "..") == 0) {//מוודא ששם הקובץ תקין
         return 0;
     }
 
@@ -46,7 +47,8 @@ static int extractPathParts(const char *user_path, char *user_dir_part, const ch
 
 static int resolveAndCheckDir(const char *user_dir_part, char *resolved_combined_dir) {
     char combined_dir[PATH_MAX];
-    if (snprintf(combined_dir, sizeof(combined_dir), "%s/%s", BASE_DIR, user_dir_part) >= (int)sizeof(combined_dir)) {
+    if (snprintf(combined_dir, sizeof(combined_dir), "%s/%s", BASE_DIR, user_dir_part) >= 
+    (int)sizeof(combined_dir)) {// check if base dir+user dir will overload
         return 0;
     }
 
@@ -63,7 +65,8 @@ static int resolveAndCheckDir(const char *user_dir_part, char *resolved_combined
 }
 
 static int buildFinalPath(const char *resolved_dir, const char *file_part, char *resolved_out) {
-    if (snprintf(resolved_out, PATH_MAX, "%s/%s", resolved_dir, file_part) >= PATH_MAX) {
+    if (snprintf(resolved_out, PATH_MAX, "%s/%s", resolved_dir, file_part) 
+    >= PATH_MAX) {// check if resolved dir+file will not overload
         return 0;
     }
     return 1;

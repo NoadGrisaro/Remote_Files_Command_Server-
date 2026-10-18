@@ -12,7 +12,7 @@
 
 #define SERVER_PORT 8000
 #define BACKLOG 128
-#define THREAD_POOL_SIZE 4
+#define THREAD_POOL_SIZE 1
 #define QUEUE_CAPACITY 64
 
 typedef struct {
@@ -37,7 +37,8 @@ static ClientQueue g_client_queue = {
 static void queuePush(int client_fd) {
     pthread_mutex_lock(&g_client_queue.lock);
 
-    /* אם התור מלא, ה-Main Thread ממתין שיתפנה מקום */
+
+    // אם התור המלא התהליכון הראשי ממתין שיתפנה
     while (g_client_queue.count == QUEUE_CAPACITY) {
         pthread_cond_wait(&g_client_queue.not_full, &g_client_queue.lock);
     }
@@ -46,7 +47,8 @@ static void queuePush(int client_fd) {
     g_client_queue.tail = (g_client_queue.tail + 1) % QUEUE_CAPACITY;
     g_client_queue.count++;
 
-    /* מעיר Worker אחד שממתין בתור */
+
+    //מעיר תהליכון עובד שמחכה ללקוח
     pthread_cond_signal(&g_client_queue.not_empty);
     pthread_mutex_unlock(&g_client_queue.lock);
 }
@@ -54,7 +56,7 @@ static void queuePush(int client_fd) {
 static int queuePop(void) {
     pthread_mutex_lock(&g_client_queue.lock);
 
-    /* Worker ממתין עד שיש לקוח בתור */
+    //תהליכון ממתין עד שיש לקוח בתור
     while (g_client_queue.count == 0) {
         pthread_cond_wait(&g_client_queue.not_empty, &g_client_queue.lock);
     }
@@ -63,7 +65,7 @@ static int queuePop(void) {
     g_client_queue.head = (g_client_queue.head + 1) % QUEUE_CAPACITY;
     g_client_queue.count--;
 
-    /* מעיר את ה-Main Thread אם הוא המתין בגלל תור מלא */
+    // מעיר את התהליכון הראשי על מנת להודיע שהוא פנוי
     pthread_cond_signal(&g_client_queue.not_full);
     pthread_mutex_unlock(&g_client_queue.lock);
 
@@ -71,12 +73,11 @@ static int queuePop(void) {
 }
 
 static void handleClientConnection(int client_fd, int worker_id) {
+    ProtocolMessage req;
     printf("[Worker %d] Started serving client_fd=%d\n", worker_id, client_fd);
 
-    ProtocolMessage req;
-
     // כל עוד הלקוח שולח פקודות בסשן הנוכחי 
-    while (readAll(client_fd, &req, sizeof(req)) > 0) {
+    while (readAll(client_fd, &req, sizeof(req)) > 0) {//כל עוד קריאת המידע מתבצעת בהצלחה
         if (ntohl(req.magic) != PROTOCOL_MAGIC) {
             fprintf(stderr, "[Worker %d] Invalid magic from client_fd=%d\n", worker_id, client_fd);
             break;
@@ -95,7 +96,6 @@ static void *workerRoutine(void *arg) {
 
     while (1) {
         int client_fd = queuePop();
-
         handleClientConnection(client_fd, worker_id);
     }
 
@@ -109,7 +109,6 @@ static int startWorkerPool(pthread_t *threads, int pool_size) {
             perror("Failed to allocate worker id");
             return -1;
         }
-        *id = i + 1;
 
         if (pthread_create(&threads[i], NULL, workerRoutine, id) != 0) {
             perror("Failed to create worker thread");
@@ -152,7 +151,7 @@ static int initServerSocket(uint16_t port, int backlog) {
     return server_fd;
 }
 
-static void runServerListener(int server_fd) {
+static void runServer(int server_fd) {
     printf("Server up on port %d. %d workers ready to accept connections.\n", SERVER_PORT, THREAD_POOL_SIZE);
 
     while (1) {
@@ -177,7 +176,7 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    runServerListener(server_fd);
+    runServer(server_fd);
 
     close(server_fd);
     return EXIT_SUCCESS;
