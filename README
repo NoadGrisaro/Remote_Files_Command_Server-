@@ -18,10 +18,14 @@ binary application protocol. every packet that go will have a header the header 
 
 to run the program you need to run the two next compile commands
 
+
+gcc -Wall -Wextra -pthread     -I Server/include     -I Shared_modules/include     Server/src/*.c     Shared_modules/src/net_utilities.c     Shared_modules/src/protocol.c     -o bin/server
+
+
 gcc -Wall -Wextra     -I Client/include     -I Shared_modules/include     Client/src/cli.c     Client/src/command_parsing.c     Shared_modules/src/net_utilities.c     Shared_modules/src/protocol.c     -o bin/client
 
 
-gcc -Wall -Wextra -pthread     -I Server/include     -I Shared_modules/include     Server/src/*.c     Shared_modules/src/net_utilities.c     Shared_modules/src/protocol.c     -o bin/server
+
 
 and the run the two commands
 ./bin/server

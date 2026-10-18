@@ -30,7 +30,7 @@ int addNewWriter(const char *path) {
 
     pthread_mutex_lock(&writer_table.lock);
 
-    if (writer_table.count >= MAX_CONCURRENT_WRITERS || find_index_unlocked(path) != -1) {
+    if (writer_table.count >= MAX_CONCURRENT_WRITERS || findIndexUnlocked(path) != -1) {
         pthread_mutex_unlock(&writer_table.lock);
         return 0;
     }
@@ -48,7 +48,7 @@ int releaseWriter(const char *path) {
 
     pthread_mutex_lock(&writer_table.lock);
 
-    int idx = find_index_unlocked(path);
+    int idx = findIndexUnlocked(path);
     if (idx == -1) {
         pthread_mutex_unlock(&writer_table.lock);
         return 0;

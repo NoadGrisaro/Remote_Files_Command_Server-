@@ -30,7 +30,17 @@ typedef enum {
     ERR_TEXT_TOO_LONG
 } ParseStatus;
 
-
-ParseStatus parse_command(const char *raw_line, CommandRequest *out_cmd);
+/**
+ * @brief Parses a raw input line into a structured CommandRequest.
+ * 
+ * Extracts the action keyword, target file name (handling optional quoted tokens),
+ * and payload text if required by the operation. Validates token lengths and argument counts.
+ * 
+ * @param[in]  raw_line  Null-terminated string containing the raw user input.
+ * @param[out] out_cmd   Pointer to a CommandRequest structure to receive parsed fields.
+ * 
+ * @return ParseStatus   PARSE_SUCCESS on valid input, or a specific error code on failure.
+ */
+ParseStatus parseCommand(const char *raw_line, CommandRequest *out_cmd);
 
 #endif // COMMAND_PARSING_H
